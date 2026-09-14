@@ -237,6 +237,28 @@ textarea {
   border: 1px solid var(--cp-border); border-radius: 0.625rem;
   background: var(--cp-surface-soft); color: var(--cp-text); resize: vertical;
 }
+input[type="text"] {
+  width: 100%; padding: 10px; font: inherit; font-size: 0.9rem; margin-bottom: 8px;
+  border: 1px solid var(--cp-border); border-radius: 0.625rem;
+  background: var(--cp-surface-soft); color: var(--cp-text);
+}
+textarea.code {
+  min-height: 84px; font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 0.72rem; word-break: break-all; line-height: 1.35;
+}
+.snap {
+  display: flex; align-items: center; gap: 8px; padding: 9px 0;
+  border-bottom: 1px solid var(--cp-border);
+}
+.snap:last-child { border-bottom: none; }
+.snap .meta { flex: 1; min-width: 0; }
+.snap .meta b { display: block; font-weight: 600; font-size: 0.92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.snap .meta small { color: var(--cp-text-muted); font-size: 0.76rem; }
+.snap button { padding: 6px 10px; font-size: 0.8rem; }
+.empty { color: var(--cp-text-muted); font-size: 0.85rem; font-style: italic; }
+.danger {
+  border-color: var(--cp-danger); color: var(--cp-danger); background: transparent;
+}
 
 .story p { font-size: 0.92rem; margin: 0 0 10px; }
 .story p:last-child { margin-bottom: 0; }
@@ -680,9 +702,8 @@ a { color: var(--cp-link); }
     </div>
 
     <div class="card">
-      <h2>Remise à zéro</h2>
-      <button class="roll ghost" id="reset" style="width:100%">Tout réinitialiser</button>
-      <p class="note">PV, points de héros, états, emplacements de sorts et notes sont sauvegardés sur cet appareil uniquement.</p>
+      <h2>Sauvegarde</h2>
+      <p class="note" style="margin-top:0">Tout est stocké dans ce navigateur uniquement. Un nettoyage de l'historique effacerait Lörn. Va dans l'onglet <b>Notes</b> pour exporter une sauvegarde.</p>
     </div>
   </section>
 
@@ -693,9 +714,41 @@ a { color: var(--cp-link); }
       <textarea id="notes" placeholder="Noms des PNJ, indices, promesses faites, dettes, butin à partager, questions à poser au MJ…"></textarea>
       <p class="note" id="notestatus">Sauvegarde automatique sur cet appareil.</p>
     </div>
+
     <div class="card">
       <h2>Butin et pièces</h2>
       <textarea id="loot" placeholder="Pièces d'or, objets trouvés, objets magiques non identifiés…" style="min-height:110px"></textarea>
+    </div>
+
+    <div class="card">
+      <h2>Points de sauvegarde</h2>
+      <input type="text" id="snapName" placeholder="Fin de la séance 1" maxlength="60">
+      <button class="roll big" id="snapSave">Enregistrer l'état actuel</button>
+      <div id="snapList"></div>
+      <p class="note">Des instantanés complets (PV, états, notes, butin), gardés dans ce navigateur. Pratique avant un combat risqué ou en fin de séance.</p>
+    </div>
+
+    <div class="card">
+      <h2>Exporter vers un fichier</h2>
+      <button class="roll big" id="exportFile">⬇ Télécharger ma sauvegarde</button>
+      <button class="roll ghost big" id="importBtn">⬆ Restaurer depuis un fichier</button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+      <p class="note">Un petit fichier <code>.json</code> à garder dans ton cloud ou à t'envoyer par mail. C'est la sauvegarde qui survit à tout.</p>
+    </div>
+
+    <div class="card">
+      <h2>Code de transfert</h2>
+      <p class="note" style="margin-top:0">Pour passer du téléphone à l'ordinateur sans fichier : copie ce code, colle-le sur l'autre appareil.</p>
+      <textarea id="transferCode" class="code" readonly aria-label="Code de transfert"></textarea>
+      <button class="roll big" id="copyCode">📋 Copier mon code</button>
+      <textarea id="pasteCode" class="code" placeholder="Colle ici un code de transfert reçu…" aria-label="Code à restaurer"></textarea>
+      <button class="roll ghost big" id="applyCode">Restaurer depuis ce code</button>
+    </div>
+
+    <div class="card">
+      <h2>Remise à zéro</h2>
+      <button class="roll ghost big danger" id="reset">Tout effacer et repartir de zéro</button>
+      <p class="note">PV, points de héros, états, sorts, notes et butin. Les points de sauvegarde, eux, sont conservés.</p>
     </div>
   </section>
 
@@ -734,7 +787,7 @@ a { color: var(--cp-link); }
   };
 
   let state = Object.assign({}, DEFAULTS, store.read());
-  const save = () => store.write(state);
+  const save = () => { store.write(state); refreshTransferCode(); };
 
   /* ---------- pénalité globale d'états ---------- */
   function condPenalty() { return state.frightened + state.enfeebled; }
@@ -868,10 +921,25 @@ a { color: var(--cp-link); }
     show("Nuit de repos", "PV au maximum, sorts récupérés, états effacés.", "", null);
   });
 
+  let resetArmed = false, resetTimer = null;
+  function disarmReset() {
+    clearTimeout(resetTimer);
+    resetArmed = false;
+    $("reset").textContent = "Tout effacer et repartir de zéro";
+  }
+
   $("reset").addEventListener("click", () => {
+    if (!resetArmed) {
+      resetArmed = true;
+      $("reset").textContent = "Confirmer l'effacement ?";
+      resetTimer = setTimeout(disarmReset, 5000);
+      return;
+    }
+    disarmReset();
     state = Object.assign({}, DEFAULTS, { slots: [false, false] });
     $("notes").value = ""; $("loot").value = "";
     renderAll(); save();
+    show("Fiche réinitialisée", "Tout est revenu à l'état de départ.", "✓", null);
   });
 
   /* ---------- notes ---------- */
@@ -977,8 +1045,209 @@ a { color: var(--cp-link); }
     });
   });
 
+  /* ---------- sauvegarde, export, transfert ---------- */
+  const SNAPKEY = "pf2-lorn-snapshots-v1";
+  const PAYLOAD_VERSION = 2;
+
+  function payload() {
+    return { app: "pf2-lorn", personnage: "Lörn", version: PAYLOAD_VERSION, exporte: new Date().toISOString(), state: state };
+  }
+
+  function b64encode(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = "";
+    const CHUNK = 0x8000;
+    for (let i = 0; i < bytes.length; i += CHUNK) {
+      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+    }
+    return btoa(bin);
+  }
+
+  function b64decode(b64) {
+    const bin = atob(b64.replace(/\s+/g, ""));
+    return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+  }
+
+  function sanitize(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    const num = (v, min, max, dflt) => {
+      const n = Number(v);
+      return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : dflt;
+    };
+    const s = Object.assign({}, DEFAULTS);
+    if (!Number.isFinite(Number(raw.hp))) return null;
+    s.hp = num(raw.hp, 0, MAX_HP, MAX_HP);
+    s.hero = num(raw.hero, 0, 3, 1);
+    s.frightened = num(raw.frightened, 0, 4, 0);
+    s.enfeebled = num(raw.enfeebled, 0, 4, 0);
+    s.dying = num(raw.dying, 0, 4, 0);
+    s.wounded = num(raw.wounded, 0, 3, 0);
+    s.slots = Array.isArray(raw.slots) ? [!!raw.slots[0], !!raw.slots[1]] : [false, false];
+    s.notes = typeof raw.notes === "string" ? raw.notes.slice(0, 20000) : "";
+    s.loot = typeof raw.loot === "string" ? raw.loot.slice(0, 20000) : "";
+    return s;
+  }
+
+  function extract(text) {
+    const obj = JSON.parse(text);
+    if (!obj || typeof obj !== "object") throw new Error("format");
+    if (obj.app && obj.app !== "pf2-lorn") throw new Error("autre application");
+    return obj.state ? obj.state : obj;
+  }
+
+  function applyState(raw, sourceLabel) {
+    const s = sanitize(raw);
+    if (!s) {
+      show("Restauration impossible", "Ce contenu n'est pas une sauvegarde de Lörn.", "✕", { text: "échec", cls: "fumble" });
+      return false;
+    }
+    state = s;
+    $("notes").value = state.notes;
+    $("loot").value = state.loot;
+    renderAll(); save();
+    show("Sauvegarde restaurée", sourceLabel, "✓", { text: "c'est bon", cls: "crit" });
+    return true;
+  }
+
+  function refreshTransferCode() {
+    const el = $("transferCode");
+    if (el) el.value = b64encode(JSON.stringify(payload()));
+  }
+
+  $("exportFile").addEventListener("click", () => {
+    const name = "lorn-sauvegarde-" + new Date().toISOString().slice(0, 10) + ".json";
+    try {
+      const blob = new Blob([JSON.stringify(payload(), null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      show("Sauvegarde exportée", name, "✓", { text: "téléchargé", cls: "crit" });
+    } catch (e) {
+      show("Export impossible", "Ce navigateur bloque le téléchargement. Utilise le code de transfert.", "✕", { text: "échec", cls: "fumble" });
+    }
+  });
+
+  $("importBtn").addEventListener("click", () => $("importFile").click());
+
+  $("importFile").addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try { applyState(extract(String(reader.result)), "Fichier : " + file.name); }
+      catch (err) { show("Fichier illisible", "Ce n'est pas un fichier de sauvegarde valide.", "✕", { text: "échec", cls: "fumble" }); }
+      e.target.value = "";
+    };
+    reader.onerror = () => show("Lecture impossible", "Le fichier n'a pas pu être lu.", "✕", { text: "échec", cls: "fumble" });
+    reader.readAsText(file);
+  });
+
+  $("copyCode").addEventListener("click", () => {
+    const el = $("transferCode");
+    el.focus(); el.select(); el.setSelectionRange(0, 99999);
+    const done = (ok) => show(
+      ok ? "Code copié" : "Copie automatique impossible",
+      ok ? "Colle-le dans la même page sur ton autre appareil." : "Le texte est sélectionné : copie-le à la main.",
+      ok ? "✓" : "✕",
+      ok ? { text: "dans le presse-papier", cls: "crit" } : { text: "à faire à la main", cls: "fumble" }
+    );
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(el.value).then(() => done(true)).catch(() => {
+        let ok = false;
+        try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+        done(ok);
+      });
+    } else {
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+      done(ok);
+    }
+  });
+
+  $("applyCode").addEventListener("click", () => {
+    const raw = $("pasteCode").value.trim();
+    if (!raw) { show("Rien à restaurer", "Colle d'abord un code de transfert.", "✕", null); return; }
+    try {
+      const text = raw.charAt(0) === "{" ? raw : b64decode(raw);
+      if (applyState(extract(text), "Code de transfert")) $("pasteCode").value = "";
+    } catch (e) {
+      show("Code invalide", "Vérifie qu'il a bien été copié en entier.", "✕", { text: "échec", cls: "fumble" });
+    }
+  });
+
+  function readSnaps() { try { return JSON.parse(localStorage.getItem(SNAPKEY)) || []; } catch (e) { return []; } }
+  function writeSnaps(arr) { try { localStorage.setItem(SNAPKEY, JSON.stringify(arr)); } catch (e) {} }
+
+  function renderSnaps() {
+    const list = $("snapList");
+    const snaps = readSnaps();
+    list.textContent = "";
+    if (!snaps.length) {
+      const p = document.createElement("p");
+      p.className = "empty";
+      p.textContent = "Aucun point de sauvegarde pour l'instant.";
+      list.appendChild(p);
+      return;
+    }
+    snaps.forEach((snap) => {
+      const row = document.createElement("div");
+      row.className = "snap";
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      const title = document.createElement("b");
+      title.textContent = snap.label;
+      const sub = document.createElement("small");
+      let when = snap.date;
+      try { when = new Date(snap.date).toLocaleString("fr-BE", { dateStyle: "short", timeStyle: "short" }); } catch (e) {}
+      sub.textContent = when + " · " + (snap.state && snap.state.hp != null ? snap.state.hp + " PV" : "état inconnu");
+      meta.appendChild(title); meta.appendChild(sub);
+
+      const load = document.createElement("button");
+      load.className = "roll";
+      load.textContent = "Charger";
+      load.addEventListener("click", () => applyState(snap.state, "Point de sauvegarde « " + snap.label + " »"));
+
+      const del = document.createElement("button");
+      del.className = "roll ghost";
+      del.textContent = "✕";
+      del.setAttribute("aria-label", "Supprimer ce point de sauvegarde");
+      del.addEventListener("click", () => {
+        writeSnaps(readSnaps().filter((x) => x.id !== snap.id));
+        renderSnaps();
+      });
+
+      row.appendChild(meta); row.appendChild(load); row.appendChild(del);
+      list.appendChild(row);
+    });
+  }
+
+  $("snapSave").addEventListener("click", () => {
+    let label = ($("snapName").value || "").trim();
+    if (!label) {
+      try { label = new Date().toLocaleString("fr-BE", { dateStyle: "short", timeStyle: "short" }); }
+      catch (e) { label = new Date().toISOString().slice(0, 16).replace("T", " "); }
+    }
+    label = label.slice(0, 60);
+    const snaps = readSnaps();
+    snaps.unshift({
+      id: String(Date.now()) + "-" + Math.random().toString(36).slice(2, 7),
+      label: label,
+      date: new Date().toISOString(),
+      state: JSON.parse(JSON.stringify(state))
+    });
+    writeSnaps(snaps.slice(0, 20));
+    $("snapName").value = "";
+    renderSnaps();
+    show("Point de sauvegarde créé", label, "✓", { text: "enregistré", cls: "crit" });
+  });
+
   function renderAll() { renderHp(); renderSlots(); renderHero(); renderConditions(); renderDying(); refreshLabels(); }
   renderAll();
+  renderSnaps();
+  refreshTransferCode();
 })();
 </script>
 </body>
