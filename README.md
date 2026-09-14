@@ -16,8 +16,11 @@ Pathbuilder sert à *construire* un personnage. Cette page sert à le *jouer* : 
 - **Magie** — emplacements de sorts, tours de magie expliqués en une phrase
 - **Actions** — que faire de sa 3ᵉ action (Aider, Reconnaître, Démoraliser, Feinte…)
 - **Notes** — PNJ, indices et butin, sauvegardés sur l'appareil
+- **Sauvegarde** — export/import d'un fichier `.json`, code de transfert entre appareils, points de sauvegarde nommés
 
 Tout est stocké en local dans le navigateur. Aucun compte, aucun serveur, aucune dépendance externe : la page fonctionne hors ligne.
+
+⚠️ Comme les données vivent dans le navigateur, un nettoyage de l'historique les effacerait. L'onglet **Notes** permet d'exporter une sauvegarde de secours.
 
 ## Sur téléphone
 
