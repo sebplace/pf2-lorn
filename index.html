@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#b11f4b">
+<title>Lörn — Barde niveau 1</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-overlay: rgba(255, 255, 255, 0.8);
+  --cp-panel: rgba(255, 255, 255, 0.86);
+  --cp-panel-strong: rgba(255, 255, 255, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.55);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-overlay: rgba(41, 41, 41, 0.88);
+  --cp-panel: rgba(41, 41, 41, 0.72);
+  --cp-panel-strong: rgba(41, 41, 41, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.04);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  margin: 0; padding: 0 0 7rem;
+  background: var(--cp-bg); color: var(--cp-text);
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px; line-height: 1.5;
+}
+.wrap { max-width: 660px; margin: 0 auto; padding: 0 12px; }
+
+header { background: var(--cp-bg-elevated); border-bottom: 1px solid var(--cp-border); padding: 14px 0 11px; margin-bottom: 12px; }
+header h1 { margin: 0; font-size: 1.5rem; letter-spacing: -0.02em; }
+header p { margin: 2px 0 0; color: var(--cp-text-muted); font-size: 0.82rem; }
+
+.card {
+  background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: 16px;
+  padding: 14px; margin-bottom: 12px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+}
+.card h2 {
+  margin: 0 0 10px; font-size: 0.78rem; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--cp-text-soft); font-weight: 600;
+}
+.card.alarm { border-color: var(--cp-danger); border-width: 2px; }
+
+/* Vitals */
+.vitals { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; }
+.hp-block { display: flex; align-items: center; gap: 8px; }
+.hp-val { font-size: 2rem; font-weight: 700; min-width: 3rem; text-align: center; font-variant-numeric: tabular-nums; }
+.hp-val.low { color: var(--cp-danger); }
+.hp-max { color: var(--cp-text-muted); font-size: 0.95rem; }
+.hp-btn {
+  width: 38px; height: 38px; border-radius: 0.625rem; border: 1px solid var(--cp-border-strong);
+  background: var(--cp-surface-soft); color: var(--cp-text); font-size: 1.3rem; font-weight: 600;
+  cursor: pointer; line-height: 1; display: flex; align-items: center; justify-content: center;
+}
+.hp-btn:active { background: var(--cp-accent-soft); }
+.hp-step input {
+  width: 56px; padding: 6px; text-align: center; font: inherit; font-size: 0.9rem;
+  border: 1px solid var(--cp-border); border-radius: 0.625rem;
+  background: var(--cp-surface-soft); color: var(--cp-text);
+}
+.stat-mini { text-align: center; padding: 0 5px; }
+.stat-mini .n { font-size: 1.45rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat-mini .l { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--cp-text-soft); }
+.hp-bar { height: 7px; border-radius: 99px; background: var(--cp-surface-soft); margin-top: 10px; overflow: hidden; border: 1px solid var(--cp-border); }
+.hp-bar > div { height: 100%; background: var(--cp-accent); transition: width .2s; }
+
+/* Hero points */
+.hero-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cp-border); }
+.hero-row .lbl { font-size: 0.8rem; color: var(--cp-text-soft); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+.hero-dot {
+  width: 34px; height: 34px; border-radius: 999px; border: 2px solid var(--cp-accent);
+  background: var(--cp-surface-soft); cursor: pointer; font-size: 1rem; color: var(--cp-accent);
+  display: flex; align-items: center; justify-content: center;
+}
+.hero-dot[aria-pressed="true"] { background: var(--cp-accent); color: var(--cp-accent-fg); }
+
+/* Conditions chips */
+.chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.chip {
+  display: flex; align-items: center; gap: 6px; border: 1px solid var(--cp-border);
+  background: var(--cp-surface-soft); border-radius: 999px; padding: 4px 6px 4px 12px; font-size: 0.85rem;
+}
+.chip.on { border-color: var(--cp-danger); background: var(--cp-accent-soft); }
+.chip b { font-weight: 600; }
+.chip button {
+  width: 26px; height: 26px; border-radius: 999px; border: 1px solid var(--cp-border-strong);
+  background: var(--cp-surface); color: var(--cp-text); cursor: pointer; font: inherit; line-height: 1;
+}
+.penalty-banner {
+  margin-top: 10px; padding: 9px 12px; border-radius: 0.625rem;
+  background: var(--cp-accent-soft); border: 1px solid var(--cp-danger);
+  font-size: 0.88rem; font-weight: 600; color: var(--cp-danger);
+}
+
+/* Tabs */
+nav.tabs {
+  display: flex; gap: 4px; overflow-x: auto; padding: 4px; margin-bottom: 12px;
+  background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: 0.625rem;
+  scrollbar-width: none; position: sticky; top: 0; z-index: 20;
+}
+nav.tabs::-webkit-scrollbar { display: none; }
+nav.tabs button {
+  flex: 1 0 auto; padding: 9px 13px; border: none; border-radius: 0.5rem;
+  background: transparent; color: var(--cp-text-muted); font: inherit; font-size: 0.84rem;
+  font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+nav.tabs button[aria-selected="true"] { background: var(--cp-accent); color: var(--cp-accent-fg); }
+section[hidden] { display: none; }
+
+/* Rows */
+.row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--cp-border); }
+.row:last-child { border-bottom: none; }
+.row .name { flex: 1; min-width: 0; }
+.row .name b { font-weight: 600; display: block; }
+.row .name small { color: var(--cp-text-muted); font-size: 0.79rem; line-height: 1.4; display: block; }
+.row .pips { color: var(--cp-accent); font-size: 0.8rem; margin-right: 4px; }
+
+.roll {
+  border: 1px solid var(--cp-accent); background: var(--cp-accent-soft); color: var(--cp-accent);
+  border-radius: 0.625rem; padding: 8px 12px; font: inherit; font-weight: 700; font-size: 0.9rem;
+  cursor: pointer; white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.roll:active { background: var(--cp-accent); color: var(--cp-accent-fg); }
+.roll.ghost { border-color: var(--cp-border-strong); background: var(--cp-surface-soft); color: var(--cp-text-muted); }
+.roll:disabled { opacity: .55; cursor: default; }
+.roll.big { width: 100%; padding: 13px; font-size: 1rem; margin-bottom: 8px; }
+
+.action-card { border: 1px solid var(--cp-border); border-radius: 16px; padding: 12px; margin-bottom: 10px; background: var(--cp-surface-soft); }
+.action-card .head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+.action-card h3 { margin: 0; font-size: 1rem; }
+.action-card p { margin: 4px 0 8px; font-size: 0.87rem; color: var(--cp-text-muted); }
+.pips { color: var(--cp-accent); letter-spacing: 1px; }
+
+.map-sel { display: flex; gap: 6px; margin-bottom: 10px; }
+.map-sel button {
+  flex: 1; padding: 8px; border-radius: 0.625rem; border: 1px solid var(--cp-border);
+  background: var(--cp-surface-soft); color: var(--cp-text-muted); font: inherit;
+  font-size: 0.8rem; font-weight: 600; cursor: pointer;
+}
+.map-sel button[aria-pressed="true"] { border-color: var(--cp-accent); background: var(--cp-accent-soft); color: var(--cp-accent); }
+
+.slots { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.slot {
+  width: 42px; height: 42px; border-radius: 0.625rem; border: 2px solid var(--cp-accent);
+  background: var(--cp-accent-soft); cursor: pointer; font: inherit; font-size: 1.2rem;
+  color: var(--cp-accent); display: flex; align-items: center; justify-content: center;
+}
+.slot[aria-pressed="true"] { background: var(--cp-surface-soft); border-color: var(--cp-border); color: var(--cp-text-muted); text-decoration: line-through; }
+
+#result {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  background: var(--cp-panel-strong); backdrop-filter: blur(12px);
+  border-top: 1px solid var(--cp-border); padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+  box-shadow: var(--cp-shadow); transform: translateY(105%); transition: transform .22s ease;
+  pointer-events: none; visibility: hidden;
+}
+#result.show { transform: translateY(0); pointer-events: auto; visibility: visible; }
+#result .inner { max-width: 660px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+#result .total { font-size: 2.2rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+#result .meta { flex: 1; min-width: 0; }
+#result .meta b { display: block; font-size: 0.95rem; }
+#result .meta small { color: var(--cp-text-muted); font-size: 0.8rem; }
+#result .tag { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+#result .tag.crit { color: var(--cp-success); }
+#result .tag.fumble { color: var(--cp-danger); }
+#result button.close {
+  border: 1px solid var(--cp-border); background: var(--cp-surface-soft); color: var(--cp-text-muted);
+  border-radius: 0.625rem; width: 34px; height: 34px; font-size: 1.1rem; cursor: pointer; flex: none;
+}
+
+.note { font-size: 0.8rem; color: var(--cp-text-muted); margin: 8px 0 0; }
+.tip { border-left: 3px solid var(--cp-accent); padding: 9px 0 9px 12px; margin: 10px 0 0; font-size: 0.85rem; color: var(--cp-text-muted); background: var(--cp-accent-soft); border-radius: 0 0.625rem 0.625rem 0; }
+.tip b { color: var(--cp-text); }
+
+dl.cond { margin: 0; }
+dl.cond dt { font-weight: 600; margin-top: 10px; }
+dl.cond dd { margin: 2px 0 0; color: var(--cp-text-muted); font-size: 0.87rem; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.kv { background: var(--cp-surface-soft); border: 1px solid var(--cp-border); border-radius: 0.625rem; padding: 8px 10px; }
+.kv .l { font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--cp-text-soft); }
+.kv .n { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+textarea {
+  width: 100%; min-height: 160px; padding: 10px; font: inherit; font-size: 0.9rem;
+  border: 1px solid var(--cp-border); border-radius: 0.625rem;
+  background: var(--cp-surface-soft); color: var(--cp-text); resize: vertical;
+}
+
+.story p { font-size: 0.92rem; margin: 0 0 10px; }
+.story p:last-child { margin-bottom: 0; }
+.story .lead { font-style: italic; color: var(--cp-text-muted); border-left: 3px solid var(--cp-accent); padding-left: 12px; }
+
+footer { text-align: center; font-size: 0.75rem; color: var(--cp-text-soft); padding: 8px 0 0; }
+a { color: var(--cp-link); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Lörn</h1>
+    <p>Barde humain · Muse polymathe · Artiste · Niveau 1 · Règles Remaster</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <div class="vitals">
+      <div class="hp-block">
+        <button class="hp-btn" id="hpminus" aria-label="Retirer des PV">−</button>
+        <div><span class="hp-val" id="hpval">18</span><span class="hp-max"> / 18</span></div>
+        <button class="hp-btn" id="hpplus" aria-label="Ajouter des PV">+</button>
+        <div class="hp-step"><input id="hpstep" type="number" inputmode="numeric" value="1" min="1" aria-label="Pas de PV"></div>
+      </div>
+      <div class="stat-mini"><div class="n">17</div><div class="l">CA</div></div>
+      <div class="stat-mini"><div class="n">17</div><div class="l">DD sorts</div></div>
+    </div>
+    <div class="hp-bar"><div id="hpbar" style="width:100%"></div></div>
+
+    <div class="hero-row">
+      <span class="lbl">Points de héros</span>
+      <button class="hero-dot" data-hero="0" aria-pressed="true">★</button>
+      <button class="hero-dot" data-hero="1" aria-pressed="false">★</button>
+      <button class="hero-dot" data-hero="2" aria-pressed="false">★</button>
+      <span class="note" style="margin:0;flex:1 0 100%">Dépense 1 point pour <b>relancer entièrement</b> un jet raté (tu gardes le nouveau résultat). Dépense <b>tous</b> tes points pour ne pas mourir. Tu en reçois 1 en début de séance, et le MJ en donne quand tu joues bien ton personnage.</span>
+    </div>
+  </div>
+
+  <div class="card alarm" id="dyingcard" hidden>
+    <h2 style="color:var(--cp-danger)" id="dyingtitle">Tu es à terre</h2>
+    <div class="chips">
+      <span class="chip on"><b>Agonisant</b> <span id="dyingval">1</span>
+        <button data-dying="-1" aria-label="Diminuer">−</button>
+        <button data-dying="1" aria-label="Augmenter">+</button>
+      </span>
+      <span class="chip" id="woundedchip"><b>Blessé</b> <span id="woundedval">0</span>
+        <button data-wounded="-1" aria-label="Diminuer">−</button>
+        <button data-wounded="1" aria-label="Augmenter">+</button>
+      </span>
+    </div>
+    <div id="dyingbody">
+      <p class="note">À ton tour, tu ne fais rien d'autre que ce jet. <b>Réussite :</b> agonisant −1. <b>Réussite critique :</b> −2. <b>Échec :</b> +1. <b>Échec critique :</b> +2. À <b>agonisant 4, tu meurs.</b> Si un allié te soigne ne serait-ce que d'1 PV, tu te réveilles debout.</p>
+      <button class="roll big" id="recovery">Jet de récupération (d20 contre DD <span id="recdc">11</span>)</button>
+      <div class="tip">Tu as des points de héros ? <b>Dépense-les tous</b> pour annuler ta mort : tu retombes à agonisant 0, inconscient mais stable.</div>
+    </div>
+    <p class="note">Tant que tu es <b>blessé X</b>, retomber à 0 PV te renvoie directement à agonisant 1+X. Ça s'efface avec une nuit de repos.</p>
+  </div>
+
+  <div class="card">
+    <h2>États en cours sur toi</h2>
+    <div class="chips">
+      <span class="chip" id="chip-frightened"><b>Effrayé</b> <span id="frightenedval">0</span>
+        <button data-cond="frightened" data-delta="-1" aria-label="Diminuer">−</button>
+        <button data-cond="frightened" data-delta="1" aria-label="Augmenter">+</button>
+      </span>
+      <span class="chip" id="chip-enfeebled"><b>Affaibli</b> <span id="enfeebledval">0</span>
+        <button data-cond="enfeebled" data-delta="-1" aria-label="Diminuer">−</button>
+        <button data-cond="enfeebled" data-delta="1" aria-label="Augmenter">+</button>
+      </span>
+    </div>
+    <div class="penalty-banner" id="penaltybanner" hidden></div>
+    <p class="note">Tant qu'un de ces états est actif, <b>tous tes jets ci-dessous sont automatiquement corrigés</b>. <i>Effrayé</i> baisse de 1 à la fin de chacun de tes tours — pense à cliquer sur −.</p>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="tour">Mon tour</button>
+    <button role="tab" aria-selected="false" data-tab="magie">Magie</button>
+    <button role="tab" aria-selected="false" data-tab="actions">Actions</button>
+    <button role="tab" aria-selected="false" data-tab="comp">Compét.</button>
+    <button role="tab" aria-selected="false" data-tab="aide">Aide</button>
+    <button role="tab" aria-selected="false" data-tab="fiche">Fiche</button>
+    <button role="tab" aria-selected="false" data-tab="notes">Notes</button>
+  </nav>
+
+  <!-- ============ MON TOUR ============ -->
+  <section id="tab-tour">
+    <div class="card">
+      <h2>Début de combat</h2>
+      <button class="roll big" data-roll="d20" data-mod="6" data-label="Initiative (Perception)">Initiative +6</button>
+      <p class="note" style="margin-top:0">Si vous vous êtes approchés en douce, le MJ peut demander <b>Discrétion (+1)</b> à la place.</p>
+    </div>
+
+    <div class="card">
+      <h2>Ton tour type — 3 actions</h2>
+
+      <div class="action-card">
+        <div class="head"><span class="pips">◆</span><h3>Hymne de courage</h3></div>
+        <p>Tout le groupe (à 18 m) gagne <b>+1 à l'attaque, aux dégâts</b> et aux jets contre la peur, jusqu'à ton prochain tour. Aucun jet à faire.</p>
+        <button class="roll ghost" disabled>Automatique — pas de jet</button>
+      </div>
+
+      <div class="action-card">
+        <div class="head"><span class="pips">◆◆</span><h3>Projectile télékinétique</h3></div>
+        <p>Tu projettes un objet sur un ennemi à 9 m.</p>
+        <button class="roll" data-roll="d20" data-mod="7" data-map="1" data-label="Projectile télékinétique">Attaque +7</button>
+        <button class="roll ghost" data-roll="dmg" data-dice="1d6" data-bonus="4" data-label="Dégâts (contondant)">Dégâts 1d6+4</button>
+      </div>
+
+      <div class="action-card">
+        <div class="head"><span class="pips">◆</span><h3>Mot d'esprit</h3></div>
+        <p>Une vanne cinglante contre la Volonté de la cible. Réussite : <b>−2 en Volonté et Perception</b> (−3 si critique). Ça rend tes sorts et ceux de l'ensorceleuse bien plus efficaces.</p>
+        <button class="roll" data-roll="d20" data-mod="7" data-label="Mot d'esprit (Représentation)">Jet +7</button>
+      </div>
+
+      <div class="tip"><b>Si tu ne sais pas quoi faire de ta 3<sup>e</sup> action :</b> va voir l'onglet <b>Actions</b>. « Aider » et « Reconnaître » sont presque toujours de bons choix.</div>
+    </div>
+
+    <div class="card">
+      <h2>Multi-attaque</h2>
+      <p class="note" style="margin-top:0">Chaque attaque supplémentaire dans le même tour est pénalisée. Indique où tu en es : les boutons s'ajustent tout seuls.</p>
+      <div class="map-sel" id="mapsel">
+        <button data-map="0" aria-pressed="true">1<sup>re</sup> attaque</button>
+        <button data-map="1" aria-pressed="false">2<sup>e</sup> (−5)</button>
+        <button data-map="2" aria-pressed="false">3<sup>e</sup> (−10)</button>
+      </div>
+      <button class="roll ghost" id="endturn" style="width:100%">Fin de mon tour — remettre à zéro</button>
+    </div>
+
+    <div class="card">
+      <h2>Tes armes (secours)</h2>
+      <div class="row">
+        <div class="name"><b>Rapière</b><small>Létale d8 — sur un critique, ajoute 1d8 dégâts</small></div>
+        <button class="roll" data-roll="d20" data-mod="5" data-map="1" data-label="Rapière">+5</button>
+        <button class="roll ghost" data-roll="dmg" data-dice="1d6" data-bonus="0" data-label="Dégâts rapière (perforant)">1d6</button>
+      </div>
+      <div class="row">
+        <div class="name"><b>Arbalète légère</b><small>Portée 18 m — recharger coûte 1 action</small></div>
+        <button class="roll" data-roll="d20" data-mod="5" data-map="1" data-label="Arbalète légère">+5</button>
+        <button class="roll ghost" data-roll="dmg" data-dice="1d8" data-bonus="0" data-label="Dégâts arbalète (perforant)">1d8</button>
+      </div>
+      <div class="tip"><b>Franchement ?</b> Utilise le projectile télékinétique : il touche mieux et tape plus fort. Tes armes ne servent qu'en dépannage.</div>
+    </div>
+  </section>
+
+  <!-- ============ MAGIE ============ -->
+  <section id="tab-magie" hidden>
+    <div class="card">
+      <h2>Emplacements de sorts de niveau 1</h2>
+      <div class="slots">
+        <button class="slot" data-slot="0" aria-pressed="false">✦</button>
+        <button class="slot" data-slot="1" aria-pressed="false">✦</button>
+        <button class="roll ghost" id="rest">Nuit de repos</button>
+      </div>
+      <p class="note">Tu es lanceur <b>spontané</b> : tes 2 emplacements servent pour n'importe lequel de tes 2 sorts. Deux Apaisements, deux Terreurs, ou un de chaque — tu décides sur le moment.</p>
+    </div>
+
+    <div class="card">
+      <h2>Sorts de niveau 1</h2>
+      <div class="row">
+        <div class="name"><b>❤️ Apaisement</b><small><span class="pips">◆◆</span> Toucher un allié · soigne <b>1d10+4 PV</b> et +2 contre les effets mentaux pendant 1 minute.</small></div>
+        <button class="roll" data-roll="dmg" data-dice="1d10" data-bonus="4" data-label="Apaisement — soins">Soins</button>
+      </div>
+      <div class="row">
+        <div class="name"><b>😱 Terreur</b><small><span class="pips">◆◆</span> Un ennemi à 9 m · jet de Volonté contre ton DD <b>17</b>. Échec : <b>effrayé 2</b>. Échec critique : effrayé 3 et il fuit 1 round. Réussite : effrayé 1 quand même.</small></div>
+        <button class="roll ghost" disabled>C'est l'ennemi qui jette</button>
+      </div>
+      <div class="tip"><b>Terreur est presque toujours rentable :</b> même sur une réussite de l'ennemi, il devient effrayé 1. Personne ne ressort indemne.</div>
+    </div>
+
+    <div class="card">
+      <h2>Tours de magie — illimités</h2>
+      <div class="row">
+        <div class="name"><b>🎺 Hymne de courage</b><small><span class="pips">◆</span> <i>Courageous Anthem</i> · +1 attaque et dégâts pour tout le groupe. Ta plus grosse contribution, à relancer chaque tour.</small></div>
+      </div>
+      <div class="row">
+        <div class="name"><b>🎯 Projectile télékinétique</b><small><span class="pips">◆◆</span> Attaque de sort à 9 m · 1d6+4</small></div>
+        <button class="roll" data-roll="d20" data-mod="7" data-map="1" data-label="Projectile télékinétique">+7</button>
+        <button class="roll ghost" data-roll="dmg" data-dice="1d6" data-bonus="4" data-label="Dégâts projectile">1d6+4</button>
+      </div>
+      <div class="row">
+        <div class="name"><b>🛡️ Bouclier</b><small><span class="pips">◆</span> <b>+1 CA</b> jusqu'à ton prochain tour. Peut bloquer 5 dégâts, mais le sort devient indisponible 10 min.</small></div>
+      </div>
+      <div class="row">
+        <div class="name"><b>💬 Message</b><small><span class="pips">◆</span> Murmure une phrase à quelqu'un à 36 m, personne d'autre n'entend. Parfait pour manigancer en pleine négociation.</small></div>
+      </div>
+      <div class="row">
+        <div class="name"><b>✨ Prestidigitation</b><small><span class="pips">◆◆</span> Salir, nettoyer, refroidir, colorer, faire apparaître une babiole illusoire. Pur outil de bluff.</small></div>
+      </div>
+      <div class="row">
+        <div class="name"><b>💡 Lumière</b><small><span class="pips">◆◆</span> Un objet éclaire comme une torche (6 m).</small></div>
+      </div>
+      <div class="row">
+        <div class="name"><b>🔍 Détection de la magie</b><small><span class="pips">◆◆</span> Repère la magie à 9 m autour de toi.</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ACTIONS ============ -->
+  <section id="tab-actions" hidden>
+    <div class="card">
+      <h2>Que faire de mes actions ?</h2>
+      <p class="note" style="margin-top:0">Les actions que tout le monde peut faire. Les deux premières sont les plus sous-estimées — et les plus utiles pour toi.</p>
+    </div>
+
+    <div class="card">
+      <h2>⭐ Les deux réflexes à prendre</h2>
+      <div class="row">
+        <div class="name"><b><span class="pips">◆</span> Aider</b><small>Annonce au tour précédent <i>comment</i> tu aides un allié. À son tour, tu réagis et tu fais un jet : réussite = <b>+1</b> à son jet, réussite critique = <b>+2</b>. Un barde qui encourage, c'est exactement ça.</small></div>
+        <button class="roll" data-roll="d20" data-mod="7" data-label="Aider (Représentation)">+7</button>
+      </div>
+      <div class="row">
+        <div class="name"><b><span class="pips">◆</span> Reconnaître (connaissances)</b><small>Identifier un monstre : ses résistances, ses faiblesses, ses pouvoirs. Une info qui change tout le combat. <b>Occultisme</b> pour les fantômes, aberrations et morts-vivants ; <b>Société</b> pour les humanoïdes.</small></div>
+        <button class="roll" data-roll="d20" data-mod="3" data-label="Reconnaître (Occultisme/Société)">+3</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Actions sociales — ta spécialité</h2>
+      <div class="row">
+        <div class="name"><b><span class="pips">◆</span> Démoraliser</b><small>Tu fais peur à un ennemi à 9 m. Réussite : <b>effrayé 1</b>. Critique : effrayé 2. Grâce à ta <i>Représentation polyvalente</i>, tu utilises Représentation au lieu d'Intimidation.</small></div>
+        <button class="roll" data-roll="d20" data-mod="7" data-label="Démoraliser (Représentation)">+7</button>
+      </div>
+      <div class="row">
+        <div class="name"><b><span class="pips">◆</span> Feinte</b><small>Tu trompes un adversaire au contact. Réussite : il est <b>pris au dépourvu</b> contre ta prochaine attaque au corps à corps (critique : contre toutes tes attaques du tour).</small></div>
+        <button class="roll" data-roll="d20" data-mod="7" data-label="Feinte (Duperie)">+7</button>
+      </div>
+      <div class="row">
+        <div class="name"><b>Impressionner</b><small>Hors combat, 1 minute de discussion pour améliorer l'attitude de quelqu'un.</small></div>
+        <button class="roll" data-roll="d20" data-mod="7" data-label="Impressionner (Représentation)">+7</button>
+      </div>
+      <div class="row">
+        <div class="name"><b>Mentir</b><small>Faire avaler une salade. Le MJ oppose la Perception de la cible.</small></div>
+        <button class="roll" data-roll="d20" data-mod="7" data-label="Mentir (Duperie)">+7</button>
+      </div>
+      <div class="row">
+        <div class="name"><b>Demander un service</b><small>Obtenir quelque chose de concret de quelqu'un qui n'est pas hostile.</small></div>
+        <button class="roll" data-roll="d20" data-mod="7" data-label="Demander (Diplomatie)">+7</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Bouger et survivre</h2>
+      <div class="row"><div class="name"><b><span class="pips">◆</span> Se déplacer</b><small>7,5 m. Passer à côté d'un ennemi peut déclencher son attaque.</small></div></div>
+      <div class="row"><div class="name"><b><span class="pips">◆</span> Pas prudent</b><small>1,5 m sans jamais déclencher de réaction. <b>C'est comme ça qu'on se décolle d'un ennemi sans se faire frapper.</b></small></div></div>
+      <div class="row"><div class="name"><b><span class="pips">◆</span> Se relever</b><small>Quand tu es à terre.</small></div></div>
+      <div class="row">
+        <div class="name"><b><span class="pips">◆</span> Se cacher</b><small>Il te faut un couvert ou de l'ombre. Tu deviens caché.</small></div>
+        <button class="roll" data-roll="d20" data-mod="1" data-label="Se cacher (Discrétion)">+1</button>
+      </div>
+      <div class="row">
+        <div class="name"><b><span class="pips">◆</span> Chercher</b><small>Repérer un ennemi caché, un piège, un passage secret.</small></div>
+        <button class="roll" data-roll="d20" data-mod="6" data-label="Chercher (Perception)">+6</button>
+      </div>
+      <div class="row"><div class="name"><b><span class="pips">◆</span> Manipuler</b><small>Dégainer, ramasser, ouvrir une porte, <b>boire ton élixir de vie</b> (1d6 PV).</small></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Après le combat</h2>
+      <div class="row">
+        <div class="name"><b>Traiter les blessures</b><small>10 minutes sur un allié blessé : <b>2d8 PV</b> (et il ne peut pas être resoigné ainsi avant 1 heure). Réussite critique : 4d8. Échec critique : 1d8 dégâts. <b>À faire systématiquement après chaque bagarre</b> — c'est gratuit.</small></div>
+        <button class="roll" data-roll="d20" data-mod="4" data-label="Traiter les blessures (Médecine, DD 15)">+4</button>
+      </div>
+      <button class="roll ghost" data-roll="dmg" data-dice="2d8" data-bonus="0" data-label="Traiter les blessures — soins" style="width:100%;margin-top:8px">Soins 2d8</button>
+    </div>
+
+    <div class="card">
+      <h2>Le groupe</h2>
+      <p class="note" style="margin-top:0">Une gnome ensorceleuse, une elfe roublarde, et toi.</p>
+      <div class="tip"><b>Le réflexe qui fera de toi un bon coéquipier :</b> la roublarde double ses dégâts quand sa cible est <i>prise au dépourvu</i>. Ça arrive quand vous êtes tous les deux au contact du même ennemi, de part et d'autre — c'est l'<b>encadrement</b>. Ou quand tu réussis une <b>Feinte</b>. Pense-y à chaque tour.</div>
+      <div class="tip"><b>Et le vrai danger :</b> personne n'est en première ligne. Vous êtes trois personnages fragiles. Restez groupés, laissez les ennemis venir à vous, et n'hésitez pas à fuir un combat mal engagé.</div>
+    </div>
+  </section>
+
+  <!-- ============ COMPÉTENCES ============ -->
+  <section id="tab-comp" hidden>
+    <div class="card">
+      <h2>Tes compétences fortes</h2>
+      <div class="row">
+        <div class="name"><b>Représentation</b><small>Remplace aussi <b>Diplomatie</b> (impressionner), <b>Intimidation</b> (démoraliser) et <b>Duperie</b> (se faire passer pour). Ton bouton « je prends le contrôle de la scène ».</small></div>
+        <button class="roll" data-roll="d20" data-mod="7" data-label="Représentation">+7</button>
+      </div>
+      <div class="row">
+        <div class="name"><b>Duperie</b><small>Mentir, feinter, se faire passer pour un autre.</small></div>
+        <button class="roll" data-roll="d20" data-mod="7" data-label="Duperie">+7</button>
+      </div>
+      <div class="row">
+        <div class="name"><b>Diplomatie</b><small>Demander un service, apaiser, recueillir des rumeurs en ville.</small></div>
+        <button class="roll" data-roll="d20" data-mod="7" data-label="Diplomatie">+7</button>
+      </div>
+      <div class="row">
+        <div class="name"><b>Médecine</b><small>Traiter les blessures, premiers soins à un allié agonisant.</small></div>
+        <button class="roll" data-roll="d20" data-mod="4" data-label="Médecine">+4</button>
+      </div>
+      <div class="row">
+        <div class="name"><b>Occultisme</b><small>Identifier la magie, les fantômes, les aberrations, les morts-vivants.</small></div>
+        <button class="roll" data-roll="d20" data-mod="3" data-label="Occultisme">+3</button>
+      </div>
+      <div class="row">
+        <div class="name"><b>Société</b><small>Lois, noblesse, langues, histoire récente, humanoïdes.</small></div>
+        <button class="roll" data-roll="d20" data-mod="3" data-label="Société">+3</button>
+      </div>
+      <div class="row">
+        <div class="name"><b>Connaissance (théâtre)</b><small>Troupes, pièces, salles, cabotins et rivaux de scène.</small></div>
+        <button class="roll" data-roll="d20" data-mod="3" data-label="Connaissance (théâtre)">+3</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Perception et sauvegardes</h2>
+      <div class="row">
+        <div class="name"><b>Perception</b><small>Repérer, initiative. Tu es <b>expert</b>, au-dessus de la moyenne.</small></div>
+        <button class="roll" data-roll="d20" data-mod="6" data-label="Perception">+6</button>
+      </div>
+      <div class="row"><div class="name"><b>Vigueur</b><small>Poison, maladie, épuisement</small></div><button class="roll" data-roll="d20" data-mod="5" data-label="Vigueur">+5</button></div>
+      <div class="row"><div class="name"><b>Réflexes</b><small>Pièges, souffles, explosions</small></div><button class="roll" data-roll="d20" data-mod="5" data-label="Réflexes">+5</button></div>
+      <div class="row"><div class="name"><b>Volonté</b><small>Charme, peur, illusions — ta meilleure défense</small></div><button class="roll" data-roll="d20" data-mod="6" data-label="Volonté">+6</button></div>
+    </div>
+
+    <div class="card">
+      <h2>Non formé</h2>
+      <div class="row"><div class="name"><b>Discrétion · Acrobaties</b></div><button class="roll" data-roll="d20" data-mod="1" data-label="Dextérité (non formé)">+1</button></div>
+      <div class="row"><div class="name"><b>Nature · Religion · Survie</b></div><button class="roll" data-roll="d20" data-mod="1" data-label="Sagesse (non formé)">+1</button></div>
+      <div class="row"><div class="name"><b>Arcanes · Artisanat</b></div><button class="roll" data-roll="d20" data-mod="0" data-label="Intelligence (non formé)">+0</button></div>
+      <div class="row"><div class="name"><b>Athlétisme</b><small>Ta cotte de cuir cloutée te coûte 1 point ici</small></div><button class="roll" data-roll="d20" data-mod="-1" data-label="Athlétisme">−1</button></div>
+    </div>
+  </section>
+
+  <!-- ============ AIDE ============ -->
+  <section id="tab-aide" hidden>
+    <div class="card">
+      <h2>Lire un jet de d20</h2>
+      <dl class="cond">
+        <dt>Réussite critique</dt><dd>Tu bats le DD de <b>10 ou plus</b> — ou tu le bats avec un <b>20 naturel</b>.</dd>
+        <dt>Réussite</dt><dd>Tu atteins ou dépasses le DD.</dd>
+        <dt>Échec</dt><dd>Tu es en dessous.</dd>
+        <dt>Échec critique</dt><dd>Tu rates de <b>10 ou plus</b> — ou tu fais un <b>1 naturel</b>.</dd>
+      </dl>
+      <div class="tip">Un <b>20 naturel</b> améliore ton résultat d'un cran, un <b>1 naturel</b> l'empire d'un cran. Ce n'est jamais un succès ou un échec automatique.</div>
+    </div>
+
+    <div class="card">
+      <h2>Les 3 actions</h2>
+      <p class="note" style="margin-top:0">À ton tour : <b>3 actions</b> (◆) et <b>1 réaction</b>. Presque tout coûte 1 action — se déplacer de 7,5 m, frapper, ouvrir une porte. La plupart des sorts coûtent 2 actions. Tu combines comme tu veux : bouger trois fois, ou attaquer trois fois, ou n'importe quel mélange.</p>
+    </div>
+
+    <div class="card">
+      <h2>Les états que tu croiseras</h2>
+      <dl class="cond">
+        <dt>Effrayé X</dt><dd>−X à <b>tous</b> ses jets et DD. Baisse de 1 à la fin de chaque tour de la créature. C'est ce que font ton sort Terreur et l'action Démoraliser.</dd>
+        <dt>Pris au dépourvu</dt><dd>−2 à sa CA. L'état que la roublarde attend pour doubler ses dégâts : provoque-le par l'<b>encadrement</b> ou une <b>Feinte</b>.</dd>
+        <dt>À terre</dt><dd>−2 à ses attaques, plus facile à toucher au corps à corps. Se relever coûte 1 action.</dd>
+        <dt>Affaibli X</dt><dd>−X aux jets d'attaque, de compétence et de sauvegarde. Typiquement un poison.</dd>
+        <dt>Entravé</dt><dd>Ne peut plus bouger ni manipuler. Il faut se libérer (Athlétisme ou Acrobaties).</dd>
+        <dt>Stupéfié X</dt><dd>Pour lancer un sort, il faut réussir un jet de d20 contre DD 5+X. Le cauchemar des lanceurs de sorts.</dd>
+        <dt>Agonisant X</dt><dd>À 0 PV, inconscient. Chaque tour, jet de récupération. À <b>4</b>, tu meurs. Un seul PV de soin te remet debout.</dd>
+        <dt>Blessé X</dt><dd>Séquelle d'un passage à 0 PV. Si tu y retombes, tu repars à agonisant 1+X. Disparaît avec un repos complet ou des soins réussis.</dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <h2>Degrés de difficulté courants</h2>
+      <div class="grid2">
+        <div class="kv"><div class="l">Très facile</div><div class="n">10</div></div>
+        <div class="kv"><div class="l">Facile</div><div class="n">13</div></div>
+        <div class="kv"><div class="l">Moyen (niv. 1)</div><div class="n">15</div></div>
+        <div class="kv"><div class="l">Difficile</div><div class="n">18</div></div>
+      </div>
+      <p class="note">Traiter les blessures se fait contre <b>DD 15</b>. Avec +4, tu réussis une fois sur deux — et c'est gratuit, tu peux réessayer.</p>
+    </div>
+
+    <div class="card">
+      <h2>Aller plus loin</h2>
+      <p class="note" style="margin-top:0">
+        Toutes les règles en français : <a href="https://pf2e.pathfinder-fr.org/" target="_blank" rel="noopener">pf2e.pathfinder-fr.org</a><br>
+        Fiche officielle VF à imprimer : <a href="https://black-book-editions.fr/contenu/file/831_pf2remasterfdp.pdf" target="_blank" rel="noopener">Black Book Éditions</a><br>
+        Aides de jeu de la communauté : <a href="https://www.pathfinder-fr.org/Wiki/Pathfinder2.ADJ.ashx" target="_blank" rel="noopener">wiki Pathfinder-FR</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ FICHE ============ -->
+  <section id="tab-fiche" hidden>
+    <div class="card story">
+      <h2>Qui est Lörn</h2>
+      <p class="lead">« Je n'ai jamais menti de ma vie. J'ai simplement raconté des vérités qui n'étaient pas encore arrivées. »</p>
+      <p>Fils d'un conteur du Nord mort sans laisser autre chose qu'un répertoire et une dette, Lörn a grandi sur les tréteaux d'une troupe ambulante. Il y a appris trois choses : qu'un public qui rit ne fouille pas les poches, qu'une bonne histoire ouvre plus de portes qu'un pied-de-biche, et que les gens vous pardonnent presque tout si vous les avez fait pleurer d'abord.</p>
+      <p>Sa muse n'est pas une inspiration divine : c'est une <b>collection</b>. Lörn ramasse les histoires des autres comme d'autres ramassent les pièces — un geste de duelliste vu dans une taverne, une comptine de sorcière, la façon dont un prêtre pose sa voix. Il les rejoue, et en les rejouant, il devient un peu ce qu'il imite. C'est le sens de sa muse polymathe.</p>
+      <p>Il a quitté la troupe après une représentation qui a mal tourné — de quelle manière, il ne le dit pas, et il change de version selon le public. Ce qu'il cherche : un récit assez grand pour qu'on le raconte encore après lui. Il a compris qu'on ne devient pas une légende en jouant des légendes.</p>
+      <p><b>Son défaut :</b> il ne sait pas laisser passer une scène. Devant un public, même hostile, même au pire moment, Lörn parlera.</p>
+      <p><b>On ne le manipule pas.</b> Il connaît tous les ressorts par cœur — c'est son métier. Les menaces et le charme glissent sur lui <i>(don Obstination hautaine)</i>.</p>
+      <div class="tip"><b>Trois questions à poser à ton MJ</b> pour ancrer Lörn dans sa campagne : de quelle région du Nord vient-il ? Qui était le créancier de son père — et cette dette est-elle éteinte ? Et surtout : où et comment a-t-il rencontré l'ensorceleuse et la roublarde ? Un lien avec chacune vaut mieux qu'une page d'histoire personnelle.</div>
+    </div>
+
+    <div class="card">
+      <h2>Caractéristiques</h2>
+      <div class="grid2">
+        <div class="kv"><div class="l">Charisme</div><div class="n">18 <small>(+4)</small></div></div>
+        <div class="kv"><div class="l">Dextérité</div><div class="n">14 <small>(+2)</small></div></div>
+        <div class="kv"><div class="l">Constitution</div><div class="n">14 <small>(+2)</small></div></div>
+        <div class="kv"><div class="l">Sagesse</div><div class="n">12 <small>(+1)</small></div></div>
+        <div class="kv"><div class="l">Force</div><div class="n">10 <small>(+0)</small></div></div>
+        <div class="kv"><div class="l">Intelligence</div><div class="n">10 <small>(+0)</small></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Défenses et magie</h2>
+      <div class="grid2">
+        <div class="kv"><div class="l">Points de vie</div><div class="n">18</div></div>
+        <div class="kv"><div class="l">Classe d'armure</div><div class="n">17</div></div>
+        <div class="kv"><div class="l">Déplacement</div><div class="n">7,5 m</div></div>
+        <div class="kv"><div class="l">Perception</div><div class="n">+6</div></div>
+        <div class="kv"><div class="l">Attaque de sort</div><div class="n">+7</div></div>
+        <div class="kv"><div class="l">DD des sorts</div><div class="n">17</div></div>
+      </div>
+      <p class="note">Tradition <b>occulte</b>, lanceur <b>spontané</b>.</p>
+    </div>
+
+    <div class="card">
+      <h2>Tes dons</h2>
+      <div class="row"><div class="name"><b>Représentation polyvalente</b><small>Muse polymathe — ta Représentation remplace Diplomatie (impressionner), Intimidation (démoraliser) et Duperie (se faire passer pour).</small></div></div>
+      <div class="row"><div class="name"><b>Mot d'esprit</b><small>1 action : −2 en Volonté et Perception à un ennemi. Ton action signature.</small></div></div>
+      <div class="row"><div class="name"><b>Représentation fascinante</b><small>Ta performance rend un spectateur <i>fasciné</i> : il ne prête plus attention au reste.</small></div></div>
+      <div class="row"><div class="name"><b>Obstination hautaine</b><small>Passif : on ne te force pas la main. Tu résistes aux contraintes et aux effets mentaux.</small></div></div>
+      <div class="row"><div class="name"><b>Extension de tours mineurs</b><small>Deux tours de magie supplémentaires.</small></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Équipement</h2>
+      <p class="note" style="margin-top:0">Armure de cuir clouté · Rapière · Arbalète légère et 20 carreaux · Instrument de musique · Sac d'aventurier · <b>Élixir de vie mineur</b> (1 action, 1d6 PV)</p>
+    </div>
+
+    <div class="card">
+      <h2>Au niveau 2</h2>
+      <p class="note" style="margin-top:0">Tu gagneras : un <b>don de classe</b>, un <b>don de compétence</b>, <b>+8 PV</b> et un emplacement de sort de niveau 1 supplémentaire (3 au total).<br><br>
+      Deux pistes qui collent à Lörn : <b>Chant persistant</b> (ton Hymne de courage dure plusieurs tours, tu récupères des actions) ou <b>Hymne de soin</b> (tu soignes en même temps que tu chantes).</p>
+    </div>
+
+    <div class="card">
+      <h2>Remise à zéro</h2>
+      <button class="roll ghost" id="reset" style="width:100%">Tout réinitialiser</button>
+      <p class="note">PV, points de héros, états, emplacements de sorts et notes sont sauvegardés sur cet appareil uniquement.</p>
+    </div>
+  </section>
+
+  <!-- ============ NOTES ============ -->
+  <section id="tab-notes" hidden>
+    <div class="card">
+      <h2>Mes notes de partie</h2>
+      <textarea id="notes" placeholder="Noms des PNJ, indices, promesses faites, dettes, butin à partager, questions à poser au MJ…"></textarea>
+      <p class="note" id="notestatus">Sauvegarde automatique sur cet appareil.</p>
+    </div>
+    <div class="card">
+      <h2>Butin et pièces</h2>
+      <textarea id="loot" placeholder="Pièces d'or, objets trouvés, objets magiques non identifiés…" style="min-height:110px"></textarea>
+    </div>
+  </section>
+
+  <footer>Fiche de jeu Pathfinder 2 — Lörn · usage personnel</footer>
+</div>
+
+<div id="result" role="status" aria-live="polite">
+  <div class="inner">
+    <div class="total" id="rtotal">—</div>
+    <div class="meta">
+      <b id="rlabel">—</b>
+      <small id="rdetail">—</small>
+      <span class="tag" id="rtag"></span>
+    </div>
+    <button class="close" id="rclose" aria-label="Fermer">×</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const MAX_HP = 18;
+  const KEY = "pf2-lorn-v2";
+  const $ = (id) => document.getElementById(id);
+
+  const store = {
+    read() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } },
+    write(o) { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
+  };
+
+  const DEFAULTS = {
+    hp: MAX_HP, slots: [false, false], hero: 1,
+    frightened: 0, enfeebled: 0, dying: 0, wounded: 0,
+    notes: "", loot: ""
+  };
+
+  let state = Object.assign({}, DEFAULTS, store.read());
+  const save = () => store.write(state);
+
+  /* ---------- pénalité globale d'états ---------- */
+  function condPenalty() { return state.frightened + state.enfeebled; }
+
+  function renderConditions() {
+    $("frightenedval").textContent = state.frightened;
+    $("enfeebledval").textContent = state.enfeebled;
+    $("chip-frightened").classList.toggle("on", state.frightened > 0);
+    $("chip-enfeebled").classList.toggle("on", state.enfeebled > 0);
+
+    const p = condPenalty();
+    const banner = $("penaltybanner");
+    if (p > 0) {
+      const parts = [];
+      if (state.frightened) parts.push("effrayé " + state.frightened);
+      if (state.enfeebled) parts.push("affaibli " + state.enfeebled);
+      banner.textContent = "−" + p + " appliqué à tous tes jets (" + parts.join(", ") + ")";
+      banner.hidden = false;
+    } else {
+      banner.hidden = true;
+    }
+    refreshLabels();
+  }
+
+  document.querySelectorAll("[data-cond]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const k = btn.dataset.cond;
+      state[k] = Math.max(0, Math.min(4, state[k] + Number(btn.dataset.delta)));
+      renderConditions(); save();
+    });
+  });
+
+  /* ---------- PV ---------- */
+  function renderHp() {
+    $("hpval").textContent = state.hp;
+    $("hpval").classList.toggle("low", state.hp <= Math.floor(MAX_HP / 3));
+    $("hpbar").style.width = Math.max(0, Math.min(100, (state.hp / MAX_HP) * 100)) + "%";
+    $("dyingcard").hidden = !(state.hp === 0 || state.dying > 0 || state.wounded > 0);
+    $("dyingtitle").textContent = state.dying > 0 ? "Tu es à terre" : "Tu portes encore les séquelles";
+    $("dyingbody").hidden = state.dying === 0;
+    renderDying();
+  }
+
+  function changeHp(delta) {
+    const step = Math.max(1, parseInt($("hpstep").value, 10) || 1);
+    const before = state.hp;
+    state.hp = Math.max(0, Math.min(MAX_HP, state.hp + delta * step));
+    if (before > 0 && state.hp === 0) {
+      state.dying = 1 + state.wounded;
+    }
+    if (before === 0 && state.hp > 0 && state.dying > 0) {
+      state.dying = 0;
+      state.wounded = Math.min(3, state.wounded + 1);
+    }
+    renderHp(); save();
+  }
+
+  $("hpminus").addEventListener("click", () => changeHp(-1));
+  $("hpplus").addEventListener("click", () => changeHp(1));
+
+  /* ---------- agonisant ---------- */
+  function renderDying() {
+    $("dyingval").textContent = state.dying;
+    $("woundedval").textContent = state.wounded;
+    $("recdc").textContent = 10 + state.dying;
+    $("woundedchip").classList.toggle("on", state.wounded > 0);
+  }
+
+  document.querySelectorAll("[data-dying]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const before = state.dying;
+      state.dying = Math.max(0, Math.min(4, state.dying + Number(btn.dataset.dying)));
+      if (before > 0 && state.dying === 0) { state.wounded = Math.min(3, state.wounded + 1); }
+      renderHp(); save();
+    });
+  });
+  document.querySelectorAll("[data-wounded]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.wounded = Math.max(0, Math.min(3, state.wounded + Number(btn.dataset.wounded)));
+      renderHp(); save();
+    });
+  });
+
+  $("recovery").addEventListener("click", () => {
+    const dc = 10 + state.dying;
+    const die = d(20);
+    let delta, verdict;
+    if (die === 20 || die >= dc + 10) { delta = -2; verdict = "Réussite critique — agonisant −2"; }
+    else if (die >= dc) { delta = -1; verdict = "Réussite — agonisant −1"; }
+    else if (die === 1 || die <= dc - 10) { delta = 2; verdict = "Échec critique — agonisant +2"; }
+    else { delta = 1; verdict = "Échec — agonisant +1"; }
+    state.dying = Math.max(0, Math.min(4, state.dying + delta));
+    if (state.dying === 0) { state.wounded = Math.min(3, state.wounded + 1); verdict += " · tu te stabilises (blessé " + state.wounded + ")"; }
+    if (state.dying >= 4) { verdict += " · TU MEURS — dépense tous tes points de héros !"; }
+    renderHp(); save();
+    show("Jet de récupération (DD " + dc + ")", verdict, die, delta < 0 ? { text: "ça remonte", cls: "crit" } : { text: "ça descend", cls: "fumble" });
+  });
+
+  /* ---------- points de héros ---------- */
+  function renderHero() {
+    document.querySelectorAll(".hero-dot").forEach((b) => {
+      b.setAttribute("aria-pressed", Number(b.dataset.hero) < state.hero ? "true" : "false");
+    });
+  }
+  document.querySelectorAll(".hero-dot").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const i = Number(btn.dataset.hero);
+      state.hero = (state.hero === i + 1) ? i : i + 1;
+      renderHero(); save();
+    });
+  });
+
+  /* ---------- emplacements de sorts ---------- */
+  function renderSlots() {
+    document.querySelectorAll(".slot").forEach((btn) => {
+      btn.setAttribute("aria-pressed", state.slots[Number(btn.dataset.slot)] ? "true" : "false");
+    });
+  }
+  document.querySelectorAll(".slot").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const i = Number(btn.dataset.slot);
+      state.slots[i] = !state.slots[i];
+      renderSlots(); save();
+    });
+  });
+
+  $("rest").addEventListener("click", () => {
+    state.hp = MAX_HP; state.slots = [false, false];
+    state.frightened = 0; state.enfeebled = 0; state.dying = 0; state.wounded = 0;
+    renderAll(); save();
+    show("Nuit de repos", "PV au maximum, sorts récupérés, états effacés.", "", null);
+  });
+
+  $("reset").addEventListener("click", () => {
+    state = Object.assign({}, DEFAULTS, { slots: [false, false] });
+    $("notes").value = ""; $("loot").value = "";
+    renderAll(); save();
+  });
+
+  /* ---------- notes ---------- */
+  ["notes", "loot"].forEach((k) => {
+    const el = $(k);
+    el.value = state[k] || "";
+    el.addEventListener("input", () => { state[k] = el.value; save(); });
+  });
+
+  /* ---------- onglets ---------- */
+  const tabs = document.querySelectorAll("nav.tabs button");
+  tabs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      tabs.forEach((b) => b.setAttribute("aria-selected", String(b === btn)));
+      document.querySelectorAll("section").forEach((s) => { s.hidden = s.id !== "tab-" + btn.dataset.tab; });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  /* ---------- multi-attaque ---------- */
+  let map = 0;
+  const mapBtns = document.querySelectorAll("#mapsel button");
+  mapBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      map = Number(btn.dataset.map);
+      mapBtns.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+      refreshLabels();
+    });
+  });
+
+  $("endturn").addEventListener("click", () => {
+    map = 0;
+    mapBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.map === "0")));
+    if (state.frightened > 0) { state.frightened--; renderConditions(); save(); }
+    refreshLabels();
+    show("Fin de ton tour", "Multi-attaque remise à zéro" + (state.frightened >= 0 ? " · effrayé décrémenté" : ""), "", null);
+  });
+
+  function effMod(btn) {
+    const base = Number(btn.dataset.mod);
+    const mapPen = btn.dataset.map === "1" ? map * 5 : 0;
+    return base - mapPen - condPenalty();
+  }
+
+  function refreshLabels() {
+    document.querySelectorAll('[data-roll="d20"]').forEach((btn) => {
+      const eff = effMod(btn);
+      const signed = eff >= 0 ? "+" + eff : "−" + Math.abs(eff);
+      const label = btn.dataset.label || "";
+      if (btn.closest(".action-card")) btn.textContent = (label.indexOf("Mot") === 0 ? "Jet " : "Attaque ") + signed;
+      else if (btn.classList.contains("big")) btn.textContent = "Initiative " + signed;
+      else btn.textContent = signed;
+    });
+  }
+
+  /* ---------- dés ---------- */
+  const d = (faces) => Math.floor(Math.random() * faces) + 1;
+  const resultBox = $("result");
+  let hideTimer = null;
+
+  function show(label, detail, total, tag) {
+    $("rlabel").textContent = label;
+    $("rdetail").textContent = detail;
+    $("rtotal").textContent = (total === null || total === "") ? "✓" : total;
+    const t = $("rtag");
+    t.textContent = tag ? tag.text : "";
+    t.className = "tag" + (tag && tag.cls ? " " + tag.cls : "");
+    resultBox.classList.add("show");
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => resultBox.classList.remove("show"), 10000);
+  }
+  $("rclose").addEventListener("click", () => resultBox.classList.remove("show"));
+
+  document.querySelectorAll("[data-roll]").forEach((btn) => {
+    if (btn.id === "recovery") return;
+    btn.addEventListener("click", () => {
+      const label = btn.dataset.label || "Jet";
+
+      if (btn.dataset.roll === "d20") {
+        const eff = effMod(btn);
+        const die = d(20);
+        const total = die + eff;
+        const signed = (eff >= 0 ? "+" : "−") + Math.abs(eff);
+        let tag = null;
+        if (die === 20) tag = { text: "20 naturel — un cran au-dessus", cls: "crit" };
+        else if (die === 1) tag = { text: "1 naturel — un cran en dessous", cls: "fumble" };
+        const bits = ["d20 = " + die, signed];
+        if (btn.dataset.map === "1" && map > 0) bits.push("multi-attaque −" + map * 5);
+        if (condPenalty() > 0) bits.push("états −" + condPenalty());
+        show(label, bits.join("  ·  "), total, tag);
+        return;
+      }
+
+      if (btn.dataset.roll === "dmg") {
+        const m = /^(\d+)d(\d+)$/.exec(btn.dataset.dice || "1d6");
+        const count = Number(m[1]), faces = Number(m[2]);
+        const bonus = Number(btn.dataset.bonus || 0);
+        const rolls = [];
+        for (let i = 0; i < count; i++) rolls.push(d(faces));
+        const sum = rolls.reduce((a, b) => a + b, 0) + bonus;
+        show(label, btn.dataset.dice + " [" + rolls.join(", ") + "]" + (bonus ? " + " + bonus : ""), sum, null);
+      }
+    });
+  });
+
+  function renderAll() { renderHp(); renderSlots(); renderHero(); renderConditions(); renderDying(); refreshLabels(); }
+  renderAll();
+})();
+</script>
+</body>
+</html>
