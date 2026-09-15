@@ -399,7 +399,7 @@ a { color: var(--cp-link); }
         <button class="roll ghost" data-roll="dmg" data-dice="1d6" data-bonus="0" data-label="Dégâts rapière (perforant)">1d6</button>
       </div>
       <div class="row">
-        <div class="name"><b>Arbalète légère</b><small>Portée 18 m — recharger coûte 1 action</small></div>
+        <div class="name"><b>Arbalète</b><small>Portée 36 m — recharger coûte 1 action</small></div>
         <button class="roll" data-roll="d20" data-mod="5" data-map="1" data-label="Arbalète légère">+5</button>
         <button class="roll ghost" data-roll="dmg" data-dice="1d8" data-bonus="0" data-label="Dégâts arbalète (perforant)">1d8</button>
       </div>
@@ -433,6 +433,14 @@ a { color: var(--cp-link); }
     </div>
 
     <div class="card">
+      <h2>Sort bonus de la muse — gratuit</h2>
+      <div class="row">
+        <div class="name"><b>👤 Serviteur fantasmatique</b><small><span class="pips">◆◆</span> <i>Phantasmal Minion</i> · portée 18 m · durée entretenue. Tu crées un serviteur illusoire à forme humanoïde, visible ou invisible au choix. Il va chercher des objets, tire un levier, ouvre une porte, fait diversion.</small></div>
+      </div>
+      <p class="note">Offert par ta muse polymathe : il <b>ne consomme aucun de tes 2 emplacements</b>, tu peux le lancer en plus. Parfait pour déclencher un piège à distance ou détourner l'attention d'un garde.</p>
+    </div>
+
+    <div class="card">
       <h2>Tours de magie — illimités</h2>
       <div class="row">
         <div class="name"><b>🎺 Hymne de courage</b><small><span class="pips">◆</span> <i>Courageous Anthem</i> · +1 attaque et dégâts pour tout le groupe. Ta plus grosse contribution, à relancer chaque tour.</small></div>
@@ -452,11 +460,9 @@ a { color: var(--cp-link); }
         <div class="name"><b>✨ Prestidigitation</b><small><span class="pips">◆◆</span> Salir, nettoyer, refroidir, colorer, faire apparaître une babiole illusoire. Pur outil de bluff.</small></div>
       </div>
       <div class="row">
-        <div class="name"><b>💡 Lumière</b><small><span class="pips">◆◆</span> Un objet éclaire comme une torche (6 m).</small></div>
-      </div>
-      <div class="row">
         <div class="name"><b>🔍 Détection de la magie</b><small><span class="pips">◆◆</span> Repère la magie à 9 m autour de toi.</small></div>
       </div>
+      <p class="note">Tu as droit à <b>5 tours de magie</b> au total, et ce sont ceux-là. Pas de Lumière : tu as 5 torches dans ton sac.</p>
     </div>
   </section>
 
@@ -509,8 +515,8 @@ a { color: var(--cp-link); }
       <div class="row"><div class="name"><b><span class="pips">◆</span> Pas prudent</b><small>1,5 m sans jamais déclencher de réaction. <b>C'est comme ça qu'on se décolle d'un ennemi sans se faire frapper.</b></small></div></div>
       <div class="row"><div class="name"><b><span class="pips">◆</span> Se relever</b><small>Quand tu es à terre.</small></div></div>
       <div class="row">
-        <div class="name"><b><span class="pips">◆</span> Se cacher</b><small>Il te faut un couvert ou de l'ombre. Tu deviens caché.</small></div>
-        <button class="roll" data-roll="d20" data-mod="1" data-label="Se cacher (Discrétion)">+1</button>
+        <div class="name"><b><span class="pips">◆</span> Se cacher</b><small>Il te faut un couvert ou de l'ombre. Tu deviens caché. <b>Tu es formé en Discrétion.</b></small></div>
+        <button class="roll" data-roll="d20" data-mod="4" data-label="Se cacher (Discrétion)">+4</button>
       </div>
       <div class="row">
         <div class="name"><b><span class="pips">◆</span> Chercher</b><small>Repérer un ennemi caché, un piège, un passage secret.</small></div>
@@ -553,6 +559,10 @@ a { color: var(--cp-link); }
         <button class="roll" data-roll="d20" data-mod="7" data-label="Diplomatie">+7</button>
       </div>
       <div class="row">
+        <div class="name"><b>Discrétion</b><small>Se cacher, se faufiler. <b>Formé.</b> Ton armure cloutée coûte 1 point ici.</small></div>
+        <button class="roll" data-roll="d20" data-mod="4" data-label="Discrétion">+4</button>
+      </div>
+      <div class="row">
         <div class="name"><b>Médecine</b><small>Traiter les blessures, premiers soins à un allié agonisant.</small></div>
         <button class="roll" data-roll="d20" data-mod="4" data-label="Médecine">+4</button>
       </div>
@@ -583,10 +593,13 @@ a { color: var(--cp-link); }
 
     <div class="card">
       <h2>Non formé</h2>
-      <div class="row"><div class="name"><b>Discrétion · Acrobaties</b></div><button class="roll" data-roll="d20" data-mod="1" data-label="Dextérité (non formé)">+1</button></div>
+      <p class="note" style="margin-top:0">Ton armure de cuir clouté impose <b>−1</b> aux compétences physiques (déjà compté ci-dessous).</p>
+      <div class="row"><div class="name"><b>Acrobaties</b></div><button class="roll" data-roll="d20" data-mod="1" data-label="Acrobaties">+1</button></div>
+      <div class="row"><div class="name"><b>Intimidation</b><small>Inutile : ta Représentation (+7) la remplace</small></div><button class="roll" data-roll="d20" data-mod="4" data-label="Intimidation">+4</button></div>
       <div class="row"><div class="name"><b>Nature · Religion · Survie</b></div><button class="roll" data-roll="d20" data-mod="1" data-label="Sagesse (non formé)">+1</button></div>
       <div class="row"><div class="name"><b>Arcanes · Artisanat</b></div><button class="roll" data-roll="d20" data-mod="0" data-label="Intelligence (non formé)">+0</button></div>
-      <div class="row"><div class="name"><b>Athlétisme</b><small>Ta cotte de cuir cloutée te coûte 1 point ici</small></div><button class="roll" data-roll="d20" data-mod="-1" data-label="Athlétisme">−1</button></div>
+      <div class="row"><div class="name"><b>Vol (pickpocket)</b></div><button class="roll" data-roll="d20" data-mod="1" data-label="Vol">+1</button></div>
+      <div class="row"><div class="name"><b>Athlétisme</b></div><button class="roll" data-roll="d20" data-mod="-1" data-label="Athlétisme">−1</button></div>
     </div>
   </section>
 
@@ -634,8 +647,9 @@ a { color: var(--cp-link); }
     </div>
 
     <div class="card">
-      <h2>Aller plus loin</h2>
+      <h2>Aide-mémoire</h2>
       <p class="note" style="margin-top:0">
+        Fiche Pathbuilder officielle : <a href="https://pathbuilder2e.com/launch.html?build=1577623" target="_blank" rel="noopener">pathbuilder2e.com · build 1577623</a><br>
         Toutes les règles en français : <a href="https://pf2e.pathfinder-fr.org/" target="_blank" rel="noopener">pf2e.pathfinder-fr.org</a><br>
         Fiche officielle VF à imprimer : <a href="https://black-book-editions.fr/contenu/file/831_pf2remasterfdp.pdf" target="_blank" rel="noopener">Black Book Éditions</a><br>
         Aides de jeu de la communauté : <a href="https://www.pathfinder-fr.org/Wiki/Pathfinder2.ADJ.ashx" target="_blank" rel="noopener">wiki Pathfinder-FR</a>
@@ -684,21 +698,25 @@ a { color: var(--cp-link); }
     <div class="card">
       <h2>Tes dons</h2>
       <div class="row"><div class="name"><b>Représentation polyvalente</b><small>Muse polymathe — ta Représentation remplace Diplomatie (impressionner), Intimidation (démoraliser) et Duperie (se faire passer pour).</small></div></div>
-      <div class="row"><div class="name"><b>Mot d'esprit</b><small>1 action : −2 en Volonté et Perception à un ennemi. Ton action signature.</small></div></div>
+      <div class="row"><div class="name"><b>Mot d'esprit</b><small>1 action : −2 en Volonté et Perception à un ennemi. Ton action signature. <i>(Don général obtenu grâce à ton héritage polyvalent — issu du Livre des Joueurs 2.)</i></small></div></div>
       <div class="row"><div class="name"><b>Représentation fascinante</b><small>Ta performance rend un spectateur <i>fasciné</i> : il ne prête plus attention au reste.</small></div></div>
-      <div class="row"><div class="name"><b>Obstination hautaine</b><small>Passif : on ne te force pas la main. Tu résistes aux contraintes et aux effets mentaux.</small></div></div>
-      <div class="row"><div class="name"><b>Extension de tours mineurs</b><small>Deux tours de magie supplémentaires.</small></div></div>
+      <div class="row"><div class="name"><b>Obstination hautaine</b><small>Passif : on ne te force pas la main. Une réussite en sauvegarde contre un effet mental qui te contrôle devient une réussite critique, et qui rate une Intimidation contre toi rate <i>critiquement</i> (il ne peut plus réessayer pendant une semaine).</small></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Ce que tu n'as pas encore</h2>
+      <p class="note" style="margin-top:0">Le barde <b>ne reçoit pas de don de classe au niveau 1</b> : celui de ta muse (Représentation polyvalente) en tient lieu. Ton premier vrai choix de don de classe arrive au niveau 2.</p>
     </div>
 
     <div class="card">
       <h2>Équipement</h2>
-      <p class="note" style="margin-top:0">Armure de cuir clouté · Rapière · Arbalète légère et 20 carreaux · Instrument de musique · Sac d'aventurier · <b>Élixir de vie mineur</b> (1 action, 1d6 PV)</p>
+      <p class="note" style="margin-top:0">Armure de cuir clouté · Rapière · Arbalète · Instrument de musique (portatif) · Sac à dos contenant : sac de couchage, 10 craies, briquet à silex, corde, 2 rations, <b>5 torches</b>, outre, savon · <b>Élixir de vie mineur</b> (1 action, 1d6 PV)<br><br>Bourse : <b>1 po 7 pa</b></p>
     </div>
 
     <div class="card">
       <h2>Au niveau 2</h2>
-      <p class="note" style="margin-top:0">Tu gagneras : un <b>don de classe</b>, un <b>don de compétence</b>, <b>+8 PV</b> et un emplacement de sort de niveau 1 supplémentaire (3 au total).<br><br>
-      Deux pistes qui collent à Lörn : <b>Chant persistant</b> (ton Hymne de courage dure plusieurs tours, tu récupères des actions) ou <b>Hymne de soin</b> (tu soignes en même temps que tu chantes).</p>
+      <p class="note" style="margin-top:0">Tu gagneras : ton <b>premier don de classe</b>, un <b>don de compétence</b>, <b>+8 PV</b> et un emplacement de sort de niveau 1 supplémentaire (3 au total).<br><br>
+      Deux pistes qui collent à Lörn : <b>Chant persistant</b> (ton Hymne de courage dure plusieurs tours, tu récupères des actions) ou <b>Extension de tours mineurs</b> (2 tours de magie de plus, dont Lumière).</p>
     </div>
 
     <div class="card">
